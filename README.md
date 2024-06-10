@@ -13,17 +13,17 @@ Workflow:
 
 Data source
 
-•	SOC: derived from LUCAS 2018 (point data, continuous, csv)
+•	SOC: LUCAS 2018 (point data, continuous, csv)
 
 •	Annual mean temperature: Copernicus Climate Change Service (C3S) Climate Data Store (CDS) (multidimensional data, continuous, nc)
 
 •	Annual precipitation: Copernicus Climate Change Service (C3S) Climate Data Store (CDS) (multidimensional data, continuous, nc)
 
-•	Elevation: Copernicus DEM (https://doi.org/10.5270/ESA-c5d3d65) (raster data, continuous, tiff)
+•	Elevation: Copernicus DEM (raster data, continuous, tiff)
 
-•	NDVI: Copernicus Global Land Service (https://land.copernicus.eu/global/products/ndvi) (raster data, continuous, tiff) 
+•	NDVI: Copernicus Global Land Service (raster data, continuous, tiff) 
 
-•	Land cover: Corine Land Cover 2018 ( https://doi.org/10.2909/960998c1-1870-4e82-8051-6485205ebbac) (raster data, discrete, tiff)
+•	Land cover: Corine Land Cover 2018 (raster data, discrete, tiff)
 
 •	Parent material: European Soil Data Centre (ESDAC) (raster data, discrete, tiff)
 
