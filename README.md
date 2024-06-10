@@ -5,7 +5,7 @@ R code supporting “Warming could cause significant soil organic carbon loss ar
 
 The code uses 6 environmental variables to model soil organic carbon (SOC) across Europe with Random Forest (RF). The model is interpreted using SHapley Additive exPlanations (SHAP) values to further explore relationships between SOC and its factors, warming effects on SOC, and dominant variable in different regions.
 
-The nc.r is used to pre-process climate data of annual mean temperature and annual precipitation to get the mean values in the last 60 years and mean annual mean temperature in the next 60 years. The zhengli.r includes filtering data, training, predicting, interpreting with SHAP, plotting, and exporting data to Arc Pro. The workflow shows more detailed information.
+The nc.r is used to pre-process climate data of annual mean temperature and annual precipitation to get the mean values in the last 60 years and mean annual mean temperature in the next 60 years. The SOC.r includes filtering data, training, predicting, interpreting with SHAP, plotting, and exporting data to Arc Pro. The workflow shows more detailed information.
 
 Please note that the code is not built by a professional computer scientist, thus it may not provide the most efficient and clearest way. And some steps are done in Arc Pro as it is much easier in Arc Pro than in Rstudio. I have tried my best to make sure it is understandable. If you find anything to improve (like saving calculation time, making it clearer etc.), please don’t hesitate to contact me.
 
