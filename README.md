@@ -41,7 +41,8 @@ Here we use RF to model SOC with the six variables. As our study doesn’t focus
 
 Training the model using 18742 SOC observations and the variables.
 
-Predicting SOC in 2018 using about 4,200,000 samples, na value is removed and data that is not shown in training is also removed in predicting, for example, the elevation in training data is below 2077m, thus locations above 2077m in predicting data are removed; or some land covers and parent materials are not shown in training data, they are also removed in predicting data.
+Predicting SOC in 2018 using about 4,200,000 samples, na value is removed and data that is not shown in training is also removed in predicting, for example, the highest elevation in the training data is 2077m, thus locations above 2077m in predicting data are removed; Some land covers and parent materials that are not shown in training data are also removed.
+
 Predicting SOC in 2080 using predicted annual mean temperature data in the next 60 years.
 
 SHAP value
