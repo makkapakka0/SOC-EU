@@ -1,5 +1,6 @@
 # SOC-EU
-Soil organic carbon loss around the Baltic Sea: data processing, analysis, and plots
+
+**# Soil organic carbon loss around the Baltic Sea: data processing, analysis, and plots**
 
 R code supporting “Warming could cause significant soil organic carbon loss around the Baltic Sea”.
 
@@ -9,9 +10,9 @@ The nc.r is used to pre-process climate data of annual mean temperature and annu
 
 Please note that the code is not built by a professional computer scientist, thus it may not provide the most efficient and clearest way. And some steps are done in Arc Pro as it is much easier in Arc Pro than in Rstudio. I have tried my best to make sure it is understandable. If you find anything to improve (like saving calculation time, making it clearer etc.), please don’t hesitate to contact me.
 
-Workflow:
+**## Workflow**
 
-Data source
+**### Data source**
 
 •	SOC: LUCAS 2018 (point data, continuous, csv)
 
@@ -27,15 +28,15 @@ Data source
 
 •	Parent material: European Soil Data Centre (ESDAC) (raster data, discrete, tiff)
 
-Pre-processing:
+**### Pre-processing**
 
 The annual mean temperature and annual precipitation are nc files which contain multiple layers with a time dimension. They are calculated to get the mean value in the past 60 years. For annual mean temperature, it is also calculated to get the mean value in the next 60 years to further explore the effect of warming on SOC. The NDVI data is calculated in Arc Pro to get the mean value in the past 20 years. All the data is resampled to 1km resolution with projected coordinate system of ETRS 1989 LAEA (EPSG: 3035).
 
 A fishnet of 1km resolution is created in Arc Pro. It is used to extract value of the variables for prediction and mapping later.
 
-Analysis
+**### Analysis**
 
-Random Forest: 
+**Random Forest**
 
 Here we use RF to model SOC with the six variables. As our study doesn’t focus on predicting SOC but exploring the relationships between SOC and its factors, we don’t actually need the best parameters. Suitable parameters saving calculation time and providing reasonable results fit for our study. The parameters are selected by comparing the Out of Bag Mean Squared Error (OOB MSE). The model is finally trained with parameters of ntree = 150, mtry = 1, and other parameters remain default. This can provide sufficiently accurate results that will be used in further analysis.
 
@@ -45,7 +46,7 @@ Predicting SOC in 2018 using about 4,200,000 samples, na value is removed and da
 
 Predicting SOC in 2080 using predicted annual mean temperature data in the next 60 years.
 
-SHAP value
+**SHAP value**
 
 Calculating the overall SHAP value for the variables using training data.
 
@@ -57,11 +58,11 @@ Calculating the SHAP value for each variable of each sample in predicting data. 
 
 Comparing the SHAP values of different variable at each location and labelling the highest one.
 
-Mapping
+**Mapping**
 
 Combining the variables of prediction, predicted SOC in 2018, predicted SOC in 2080, SHAP values, and the SOC difference between 2018 and 2080. Exporting the dataframe as a shapefile. Then go to GIS.
 
-Software and packages:
+**## Software and packages**
 
 •	R 4.3.1
 
