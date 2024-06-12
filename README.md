@@ -1,6 +1,6 @@
 # SOC-EU
 
-**# Soil organic carbon loss around the Baltic Sea: data processing, analysis, and plots**
+# Soil organic carbon loss around the Baltic Sea: data processing, analysis, and plots
 
 R code supporting “Warming could cause significant soil organic carbon loss around the Baltic Sea”.
 
@@ -10,9 +10,9 @@ The nc.r is used to pre-process climate data of annual mean temperature and annu
 
 Please note that the code is not built by a professional computer scientist, thus it may not provide the most efficient and clearest way. And some steps are done in Arc Pro as it is much easier in Arc Pro than in Rstudio. I have tried my best to make sure it is understandable. If you find anything to improve (like saving calculation time, making it clearer etc.), please don’t hesitate to contact me.
 
-**## Workflow**
+## Workflow
 
-**### Data source**
+### Data source
 
 •	SOC: LUCAS 2018 (point data, continuous, csv)
 
@@ -28,13 +28,13 @@ Please note that the code is not built by a professional computer scientist, thu
 
 •	Parent material: European Soil Data Centre (ESDAC) (raster data, discrete, tiff)
 
-**### Pre-processing**
+### Pre-processing
 
 The annual mean temperature and annual precipitation are nc files which contain multiple layers with a time dimension. They are calculated to get the mean value in the past 60 years. For annual mean temperature, it is also calculated to get the mean value in the next 60 years to further explore the effect of warming on SOC. The NDVI data is calculated in Arc Pro to get the mean value in the past 20 years. All the data is resampled to 1km resolution with projected coordinate system of ETRS 1989 LAEA (EPSG: 3035).
 
 A fishnet of 1km resolution is created in Arc Pro. It is used to extract value of the variables for prediction and mapping later.
 
-**### Analysis**
+### Analysis
 
 **Random Forest**
 
@@ -62,7 +62,7 @@ Comparing the SHAP values of different variable at each location and labelling t
 
 Combining the variables of prediction, predicted SOC in 2018, predicted SOC in 2080, SHAP values, and the SOC difference between 2018 and 2080. Exporting the dataframe as a shapefile. Then go to GIS.
 
-**## Software and packages**
+## Software and packages
 
 •	R 4.3.1
 
