@@ -28,6 +28,8 @@ Please note that the code is not built by a professional computer scientist, thu
 
 •	Parent material: European Soil Data Centre (ESDAC) (raster data, discrete, tiff)
 
+•	Soil type: European Soil Data Centre (ESDAC) (raster data, discrete, tiff)
+
 ### Pre-processing
 
 The annual mean temperature and annual precipitation are nc files which contain multiple layers with a time dimension. They are calculated to get the mean value in the past 60 years. For annual mean temperature, it is also calculated to get the mean value in the next 60 years to further explore the effect of warming on SOC. The NDVI data is calculated in Arc Pro to get the mean value in the past 20 years. All the data is resampled to 1km resolution with projected coordinate system of ETRS 1989 LAEA (EPSG: 3035).
