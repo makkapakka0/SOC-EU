@@ -12,7 +12,7 @@ t<-ncvar_get(nc_data,nc_data[["dim"]][["time"]])
 tem<-ncvar_get(nc_data,nc_data[["var"]][["t2m"]])
 tp<-ncvar_get(nc_data,nc_data[["var"]][["tp"]])
 
-
+#time coverage of 1999-2009
 tem<-tem[ , ,1:120]
 tp<-tp[ , ,1:120]
 
@@ -37,6 +37,7 @@ writeRaster(raster_data,filename='D:\\2paper\\working\\tpv1.tif',format='GTiff',
 tem<-ncvar_get(nc_data,nc_data[["var"]][["t2m"]])
 tp<-ncvar_get(nc_data,nc_data[["var"]][["tp"]])
 
+#time coverage of 2009-2018
 tem<-tem[ , ,121:240]
 tp<-tp[ , ,121:240]
 
@@ -53,6 +54,7 @@ crs(raster_data) <- '+proj=longlat +datum=WGS84'
 writeRaster(raster_data,filename='D:\\2paper\\working\\tpv2.tif',format='GTiff',
             options=c('TFW=YES'),overwrite = TRUE)
 
+#train model 2009
 df<-read.csv(paste0('D:\\2paper\\working\\validation.csv'))
 df<-na.omit(df)
 train<-df[,c('OC09','ele','tpv09','tem09','NDVI09','pm','lc09','soiltypes')]
@@ -63,24 +65,26 @@ rf<-randomForest(OC~ele+tp+tem+NDVI+pm+lc+soiltype,
                  mtry=1,
                  data=train)
 
-mse<-sum((rf[["predicted"]]-train[['OC']])*(rf[["predicted"]]-train[['OC']]))/13054
+mse1<-sum((rf[["predicted"]]-train[['OC']])*(rf[["predicted"]]-train[['OC']]))/13054
 
-
+#train model 2009 + predict 2018 using all variable in 2018
 test<-df[,c('OC18','ele','tpv18','tem18','NDVI18','pm','lc18','soiltypes')]
 names(test)<-c('OC','ele','tp','tem','NDVI','pm','lc','soiltype')
 
 pred<-predict(rf,test)
-mse<-sum((pred-test[['OC']])*(pred-test[['OC']]))/13054
+mse2<-sum((pred-test[['OC']])*(pred-test[['OC']]))/13054
 
+#train model 2018
 rf2<-randomForest(OC~ele+tp+tem+NDVI+pm+lc+soiltype,
                  ntree=150,
                  mtry=1,
                  data=test)
 
-mse<-sum((rf2[["predicted"]]-test[['OC']])*(rf2[["predicted"]]-test[['OC']]))/13054
+mse4<-sum((rf2[["predicted"]]-test[['OC']])*(rf2[["predicted"]]-test[['OC']]))/13054
 
+#train model 2009 + predict 2018 using only temperature in 2018
 temc<-df[,c('ele','tpv09','tem18','NDVI09','pm','lc09','soiltypes')]
 names(temc)<-c('ele','tp','tem','NDVI','pm','lc','soiltype')
 predtemc<-predict(rf,temc)
-mse<-sum((predtemc-test[['OC']])*(predtemc-test[['OC']]))/13054
+mse3<-sum((predtemc-test[['OC']])*(predtemc-test[['OC']]))/13054
 
