@@ -1,5 +1,6 @@
 library(randomForest)
 library(writexl)
+library(ggplot2)
 
 df<-read.csv(paste0('D:\\2paper\\working\\all.csv'))
 #select variables
@@ -31,3 +32,20 @@ for(i in tree){
 }
 
 write_xlsx(obbmse,'D:\\2paper\\working\\pamameter.csv')
+
+df<-read.csv(paste0('D:\\2paper\\working\\para.csv'))
+
+ggplot(df,aes(x=ntree,y=MSE,color=mtry))+
+  geom_line()+
+  labs(x='ntree',y='MSE',color='mtry')+
+  theme_minimal()+
+  theme(axis.text = element_text(size=20),
+        axis.title = element_text(size=24),
+        panel.border = element_rect(colour = 'black',fill=NA),
+        panel.grid.major = element_line(colour = 'gray80'),
+        panel.grid.minor = element_line(colour = 'gray80'),
+        axis.line = element_line(colour = 'black'),
+        legend.position = c(0.9,0.86),
+        legend.text = element_text(size=16),
+        legend.title = element_text(size=0))+
+  ggsave('D:\\2paper\\maps\\parameter.tiff',dpi=300,width=10,height=6)
