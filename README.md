@@ -1,12 +1,12 @@
 # SOC-EU
 
-# Soil organic carbon loss around the Baltic Sea: data processing, analysis, and plots
+# Soil organic carbon loss around the southern Baltic Sea: data processing, analysis, and plots
 
-R code supporting “Warming could cause significant soil organic carbon loss around the Baltic Sea”.
+R code supporting “Warming could cause significant soil organic carbon loss around the southern Baltic Sea”.
 
-The code uses 6 environmental variables to model soil organic carbon (SOC) across Europe with Random Forest (RF). The model is interpreted using SHapley Additive exPlanations (SHAP) values to further explore relationships between SOC and its factors, warming effects on SOC, and dominant variable in different regions.
+The code uses 7 environmental variables to model soil organic carbon (SOC) across Europe using Random Forest (RF). The model is interpreted using SHapley Additive exPlanations (SHAP) values to further explore relationships between SOC and its factors, warming effects on SOC, and dominant variable in different regions.
 
-The nc.r is used to pre-process climate data of annual mean temperature and annual precipitation to get the mean values in the last 60 years and mean annual mean temperature in the next 60 years. The SOC.r includes filtering data, training, predicting, interpreting with SHAP, plotting, and exporting data to Arc Pro. The workflow shows more detailed information.
+The NC_data is used to pre-process climate data of annual mean temperature and annual precipitation to get the mean values in the last 60 years and mean annual mean temperature in the next 60 years. The SHAP includes filtering data, training, predicting, interpreting using SHAP, plotting, and exporting data to Arc Pro. The workflow shows more detailed information.
 
 Please note that the code is not built by a professional computer scientist, thus it may not provide the most efficient and clearest way. And some steps are done in Arc Pro as it is much easier in Arc Pro than in Rstudio. I have tried my best to make sure it is understandable. If you find anything to improve (like saving calculation time, making it clearer etc.), please don’t hesitate to contact me.
 
@@ -34,19 +34,19 @@ Please note that the code is not built by a professional computer scientist, thu
 
 The annual mean temperature and annual precipitation are nc files which contain multiple layers with a time dimension. They are calculated to get the mean value in the past 60 years. For annual mean temperature, it is also calculated to get the mean value in the next 60 years to further explore the effect of warming on SOC. The NDVI data is calculated in Arc Pro to get the mean value in the past 20 years. All the data is resampled to 1km resolution with projected coordinate system of ETRS 1989 LAEA (EPSG: 3035).
 
-A fishnet of 1km resolution is created in Arc Pro. It is used to extract value of the variables for prediction and mapping later.
+A fishnet of 1km resolution is created in Arc Pro. It is used to extract value of the variables for prediction and mapping.
 
 ### Analysis
 
 **Random Forest**
 
-Here we use RF to model SOC with the six variables. As our study doesn’t focus on predicting SOC but exploring the relationships between SOC and its factors, we don’t actually need the best parameters. Suitable parameters saving calculation time and providing reasonable results fit for our study. The parameters are selected by comparing the Out of Bag Mean Squared Error (OOB MSE). The model is finally trained with parameters of ntree = 150, mtry = 1, and other parameters remain default. This can provide sufficiently accurate results that will be used in further analysis.
+Here we apply RF to model SOC using the 7 variables. As we do not focus on predicting SOC but exploring the relationships between SOC and its factors, optimal parameter are not necessary. Suitable parameters saving calculation time and providing reasonable results are fit for our study. The parameters are selected by comparing the Out of Bag Mean Squared Error (OOB MSE). The model is finally trained with parameters of ntree = 150, mtry = 1, and other parameters remain default. This can provide sufficiently accurate results that will be used in further analysis.
 
 Training the model using 18742 SOC observations and the variables.
 
-Predicting SOC in 2018 using about 4,200,000 samples, na value is removed and data that is not shown in training is also removed in predicting, for example, the highest elevation in the training data is 2077m, thus locations above 2077m in predicting data are removed; Some land covers and parent materials that are not shown in training data are also removed.
+Predicting SOC in 2018 using about 4,200,000 samples, na value is removed and data that is not shown in training is also removed in predicting. For example, the highest elevation in the training data is 2077m, thus locations above 2077m in predicting data are removed; Some land covers, parent materials, and soil types that are not shown in training data are also removed.
 
-Predicting SOC in 2080 using predicted annual mean temperature data in the next 60 years.
+Predicting SOC in 2070 using predicted annual mean temperature data in the next 60 years.
 
 **SHAP value**
 
@@ -92,7 +92,9 @@ Combining the variables of prediction, predicted SOC in 2018, predicted SOC in 2
 
 •	writexl 1.4.2
 
+•	sf 1.0-14
 
+•	gplots 3.1.3.1
 
 
 
