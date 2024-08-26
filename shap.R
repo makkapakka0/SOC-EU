@@ -129,7 +129,6 @@ df2<-df2[df2$soil_types!=118,]
 df2<-df2[df2$soil_types!=125,]
 df2<-df2[df2$soil_types!=127,]
 
-
 #rename the variables
 names(df2)<-c('long','lat','lc','ele','tp','tem','NDVI','pm','soiltype','temf')
 #predict current SOC in Europe
@@ -139,17 +138,6 @@ pred<-predict(rf,newdata=df2)
 #global shap model
 X<-df[,c('lc','ele','tp','tem','NDVI','pm','soiltype')]
 Y<-as.data.frame(rf[["predicted"]])
-
-#base model
-predictor_model<-Predictor$new(rf,data=X,y=Y)
-iml_model<-FeatureImp$new(predictor_model,loss='rmse')
-iml_model$results
-iml_model$plot()
-
-#shap model
-shap_model<-Shapley$new(predictor_model,x.interest=X)
-shap_model$results
-shap_model$plot()
 
 #local shap model for the traning data
 df_shap<-df[ ,c('lc','ele','tp','tem','NDVI','pm','soiltype')]
@@ -240,9 +228,9 @@ ggplot(merge,aes(x=ele,y=eles))+
   xlab('Elevation (m)')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=20),
-        axis.title = element_text(size=24),
-        panel.border = element_rect(colour = 'black',fill=NA),
+  theme(axis.text = element_text(size=24),
+        axis.title = element_text(size=28),
+        panel.border = element_rect(colour = 'black',fill=NA,size=2),
         panel.grid.major = element_line(colour = 'gray80'),
         panel.grid.minor = element_line(colour = 'gray80'),
         axis.line = element_line(colour = 'black'))+
@@ -256,9 +244,9 @@ ggplot(merge,aes(x=tem,y=tems))+
   xlab('Annual mean temperature (℃)')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=20),
-        axis.title = element_text(size=24),
-        panel.border = element_rect(colour = 'black',fill=NA),
+  theme(axis.text = element_text(size=24),
+        axis.title = element_text(size=28),
+        panel.border = element_rect(colour = 'black',fill=NA,size=2),
         panel.grid.major = element_line(colour = 'gray80'),
         panel.grid.minor = element_line(colour = 'gray80'),
         axis.line = element_line(colour = 'black'))+
@@ -273,9 +261,9 @@ ggplot(merge,aes(x=tp,y=tps))+
   xlab('Annual precipitation (mm/y)')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=20),
-        axis.title = element_text(size=24),
-        panel.border = element_rect(colour = 'black',fill=NA),
+  theme(axis.text = element_text(size=24),
+        axis.title = element_text(size=28),
+        panel.border = element_rect(colour = 'black',fill=NA,size=2),
         panel.grid.major = element_line(colour = 'gray80'),
         panel.grid.minor = element_line(colour = 'gray80'),
         axis.line = element_line(colour = 'black'))+
@@ -289,14 +277,13 @@ ggplot(merge,aes(x=NDVI,y=NDVIs))+
   xlab('NDVI')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=20),
-        axis.title = element_text(size=24),
-        panel.border = element_rect(colour = 'black',fill=NA),
+  theme(axis.text = element_text(size=24),
+        axis.title = element_text(size=28),
+        panel.border = element_rect(colour = 'black',fill=NA,size=2),
         panel.grid.major = element_line(colour = 'gray80'),
         panel.grid.minor = element_line(colour = 'gray80'),
         axis.line = element_line(colour = 'black'))+
   ggsave('D:\\2paper\\maps\\NDVIshap.tiff',dpi=300,width=10,height=6)
-
 
 #plot parent material
 #get parent material and its shap
@@ -306,33 +293,33 @@ gd<-group_by(gd,pm)
 #get the mean shap value of each type of parent material
 smd<-summarise(gd,mean_value=mean(pms))
 #get the top 5
-pmdata<-merge[merge$pm %in% c(8000,6111,5500,5600,2111),]
+pmdata<-merge[merge$pm %in% c(8000,6111,5500,2115,2111),]
 #change the id into real name
 pmdata$pm[pmdata$pm==8000]<-c('Organic 
 materials')
-pmdata$pm[pmdata$pm==6111]<-c('Boulder clay')
-pmdata$pm[pmdata$pm==5500]<-c('Lake deposits')
-pmdata$pm[pmdata$pm==5600]<-c('Residul and 
-redeposited 
-loams from 
-silicate rocks')
+pmdata$pm[pmdata$pm==6111]<-c('Boulder
+clay')
+pmdata$pm[pmdata$pm==5500]<-c('Lake 
+deposits')
+pmdata$pm[pmdata$pm==2115]<-c('Detrital
+limestone')
 pmdata$pm[pmdata$pm==2111]<-c('Hard 
 limestone')
 #plot
 ggplot(pmdata,aes(x=pm,y=pms,group=pm))+
+  stat_boxplot(geom='errorbar',width=0.1)+
   geom_boxplot()+
   ylim(-5,40)+
   xlab('Parent material')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=20),
-        axis.title = element_text(size=24),
-        panel.border = element_rect(colour = 'black',fill=NA),
+  theme(axis.text = element_text(size=24),
+        axis.title = element_text(size=28),
+        panel.border = element_rect(colour = 'black',fill=NA,size=2),
         panel.grid.major = element_line(colour = 'gray80'),
         panel.grid.minor = element_line(colour = 'gray80'),
         axis.line = element_line(colour = 'black'))+
   ggsave('D:\\2paper\\maps\\pmshap.tiff',dpi=300,width=10,height=6)
-
 
 #plot land cover
 #get land cover and its shap
@@ -342,12 +329,14 @@ gd<-group_by(gd,lc)
 #get the mean shap value of each type of land cover
 smd<-summarise(gd,mean_value=mean(lcs))
 #get the top 5
-lcdata<-merge[merge$lc %in% c(36,24,33,35,32),]
+lcdata<-merge[merge$lc %in% c(36,24,29,35,32),]
 #change the id into real name
 lcdata$lc[lcdata$lc==36]<-c('Peat bogs')
 lcdata$lc[lcdata$lc==24]<-c('Coniferous
 forest')
-lcdata$lc[lcdata$lc==33]<-c('Burnt area')
+lcdata$lc[lcdata$lc==29]<-c('Transitional
+woodland
+shrub')
 lcdata$lc[lcdata$lc==35]<-c('Inland 
 marshes')
 lcdata$lc[lcdata$lc==32]<-c('Sparsely 
@@ -355,14 +344,15 @@ vegetated
 area')
 #plot
 ggplot(lcdata,aes(x=lc,y=lcs,group=lc))+
+  stat_boxplot(geom='errorbar',width=0.1)+
   geom_boxplot()+
   ylim(0,100)+
   xlab('Land cover')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=20),
-        axis.title = element_text(size=24),
-        panel.border = element_rect(colour = 'black',fill=NA),
+  theme(axis.text = element_text(size=24),
+        axis.title = element_text(size=28),
+        panel.border = element_rect(colour = 'black',fill=NA,size=2),
         panel.grid.major = element_line(colour = 'gray80'),
         panel.grid.minor = element_line(colour = 'gray80'),
         axis.line = element_line(colour = 'black'))+
@@ -390,14 +380,15 @@ stdata$soiltype[stdata$soiltype==68]<-c('Eutric
 histosol')
 #plot
 ggplot(stdata,aes(x=soiltype,y=soiltypes,group=soiltype))+
+  stat_boxplot(geom='errorbar',width=0.1)+
   geom_boxplot()+
   ylim(0,60)+
   xlab('Soil type')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=20),
-        axis.title = element_text(size=24),
-        panel.border = element_rect(colour = 'black',fill=NA),
+  theme(axis.text = element_text(size=24),
+        axis.title = element_text(size=28),
+        panel.border = element_rect(colour = 'black',fill=NA,size=2),
         panel.grid.major = element_line(colour = 'gray80'),
         panel.grid.minor = element_line(colour = 'gray80'),
         axis.line = element_line(colour = 'black'))+
@@ -405,12 +396,14 @@ ggplot(stdata,aes(x=soiltype,y=soiltypes,group=soiltype))+
 
 
 #to GIS
+#residual
+merge$res<-rf[["predicted"]]-df$OC
 #get xy
 coordinates(merge)<-c('x','y')
 #define crs
 shap_df1<-st_as_sf(merge,coords=c('x','y'),crs=4326)
 #save as shapefile
-st_write(shap_df1,'D:\\2paper\\working\\allshap.shp',append=FALSE)
+st_write(shap_df1,'D:\\2paper\\working\\pointshap.shp',append=FALSE)
 
 
 #local shap model for the whole study area
@@ -510,45 +503,39 @@ SOC<-raster('D:\\2paper\\processed\\predsoc2018.tif')
 SOC<-as.data.frame(SOC,xy=TRUE)
 SOC<-na.omit(SOC)
 SOC<-group_by(SOC,y)
-median<-summarise(SOC,median_value=median(SOCpred))
+median<-summarise(SOC,median_value=median(predsoc2018))
 ggplot(median,aes(x=y,y=median_value))+
   geom_bar(stat='identity',fill='brown')+
   geom_smooth(method='loess',span=0.1,se=FALSE,color='black',linetype='solid',size=1.5)+
-  labs(title='bar',y='SOC')+
+  xlab('')+
+  ylab('')+
   coord_flip()+
   theme(panel.background = element_rect(fill='transparent',colour = NA),
         plot.background = element_rect(fill='transparent',color = NA),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())+
-  ggsave('D:\\2paper\\maps\\bar.tiff',dpi=300,width=10,height=10)
+        panel.border = element_rect(colour = 'black',fill=NA),
+        panel.grid.major = element_line(colour = 'transparent'),
+        panel.grid.minor = element_line(colour = 'transparent'),
+        axis.text = element_text(size=16),
+        axis.title = element_text(size=18),
+        axis.text.y=element_blank())+
+  ggsave('D:\\2paper\\maps\\bar.tiff',dpi=300,width=9,height=9)
   
-
 
 #plot LUCAS SOC and latitude
 ggplot(df,aes(x=lat,y=OC))+
   geom_jitter(size=0.4,height=0.4,width=0,alpha=0.2)+
   geom_smooth(method='loess',span=0.1,se=FALSE,color='red',linetype='solid',size=1.5)+
   ylim(0,600)+
-  xlab('Latitude')+
-  ylab('SOC')+
+  xlab('')+
+  ylab('')+
   theme(axis.text = element_text(size=16),
         axis.title = element_text(size=18))+
   coord_flip()+
   theme(panel.background = element_rect(fill='transparent',colour = NA),
         plot.background = element_rect(fill='transparent',color = NA),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())+
-  ggsave('D:\\2paper\\maps\\SOClatitude.tiff',dpi=300,width=10,height=10)+
-  theme_minimal()
-
-#PCA
-library(fpc)
-shap2<-shap
-shap<-as.data.frame(shap)
-shap<-round(shap,2)
-pca_result<-prcomp(shap,center=TRUE,scale.=TRUE)
-pca_result2<-prcomp(df_shap,center=TRUE,scale.=TRUE)
-fpc_result<-dbscan(pca_result$x,eps=0.1,MinPts = 5)
-plot(pca_result$x[,1:2],cex=0.1,col=fpc_result$cluster)
-plot(pca_result2$x[,1:2],cex=0.1)
+        panel.border = element_rect(colour = 'black',fill=NA),
+        panel.grid.major = element_line(colour = 'gray80'),
+        panel.grid.minor = element_line(colour = 'gray80'),
+        axis.line = element_line(colour = 'black'))+
+  ggsave('D:\\2paper\\maps\\SOClatitude.tiff',dpi=300,width=9,height=9)
 
