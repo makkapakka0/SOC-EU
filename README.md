@@ -1,4 +1,4 @@
-# SOC-EU
+# SOC-Europe
 
 # Soil organic carbon loss around the southern Baltic Sea: data processing, analysis, and plots
 
