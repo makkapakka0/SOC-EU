@@ -1,5 +1,3 @@
-# SOC-Europe
-
 # Soil organic carbon loss around the southern Baltic Sea: data processing, analysis, and plots
 
 R code supporting “Warming could cause significant soil organic carbon loss around the southern Baltic Sea”.
