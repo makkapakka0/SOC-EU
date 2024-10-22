@@ -44,7 +44,7 @@ We apply RF to model SOC using the 7 variables. As we do not focus on predicting
 
 Training the model using 18671 SOC observations and the variables.
 
-Predicting SOC in 2018 using about 4,200,000 samples, na value is removed and values that are not shown in training is also removed in predicting. For example, some land covers, parent materials, and soil types that are not trained are removed. Because sampling sites above 1500m and below 300mm/y annual precipitation are few, areas of them are not predicted.
+Predicting SOC in 2018 using about 4,100,000 samples, na value is removed and values that are not shown in training is also removed in predicting. For example, some land covers, parent materials, and soil types that are not trained are removed. Because sampling sites above 1500m and below 300mm/y annual precipitation are few, areas of them are not predicted.
 
 Predicting SOC in 2070 using predicted annual mean temperature data in the next 50 years.
 
