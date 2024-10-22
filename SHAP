@@ -46,94 +46,20 @@ df2<-df2[df2$pm!=-9999,]
 df2<-df2[df2$soil_types!=-9999,]
 df2<-df2[df2$temf!=-9999,]
 #remove land cover types that are not shown in training data
-df2<-df2[df2$lc!=5, ]
-df2<-df2[df2$lc!=43, ]
-df2<-df2[df2$lc!=38, ]
-df2<-df2[df2$lc!=39, ]
-df2<-df2[df2$lc!=40, ]
-df2<-df2[df2$lc!=41, ]
-df2<-df2[df2$lc!=42, ]
-df2<-df2[df2$lc!=43, ]
-df2<-df2[df2$lc!=44, ]
-df2<-df2[df2$lc!=45, ]
-df2<-df2[df2$lc!=46, ]
-df2<-df2[df2$lc!=47, ]
-df2<-df2[df2$lc!=49, ]
-#remove parent material types that are not shown in training data
-df2<-df2[df2$pm!=1120, ]
-df2<-df2[df2$pm!=3410, ]
-df2<-df2[df2$pm!=3430, ]
-df2<-df2[df2$pm!=4310, ]
-df2<-df2[df2$pm!=4410, ]
-df2<-df2[df2$pm!=5420, ]
-df2<-df2[df2$pm!=5700, ]
-df2<-df2[df2$pm!=5800, ]
-df2<-df2[df2$pm!=5820, ]
-df2<-df2[df2$pm!=6100, ]
-df2<-df2[df2$pm!=8100, ]
-df2<-df2[df2$pm!=8200, ]
-#remove elevations that are not shown in training data
-df2<-df2[df2$ele<2078, ]
 #remove soil types that are not shown in training data
-df2<-df2[df2$soil_types!=2,]
-df2<-df2[df2$soil_types!=4,]
-df2<-df2[df2$soil_types!=5,]
-df2<-df2[df2$soil_types!=10,]
-df2<-df2[df2$soil_types!=11,]
-df2<-df2[df2$soil_types!=15,]
-df2<-df2[df2$soil_types!=17,]
-df2<-df2[df2$soil_types!=19,]
-df2<-df2[df2$soil_types!=22,]
-df2<-df2[df2$soil_types!=24,]
-df2<-df2[df2$soil_types!=25,]
-df2<-df2[df2$soil_types!=29,]
-df2<-df2[df2$soil_types!=30,]
-df2<-df2[df2$soil_types!=35,]
-df2<-df2[df2$soil_types!=37,]
-df2<-df2[df2$soil_types!=40,]
-df2<-df2[df2$soil_types!=41,]
-df2<-df2[df2$soil_types!=42,]
-df2<-df2[df2$soil_types!=43,]
-df2<-df2[df2$soil_types!=44,]
-df2<-df2[df2$soil_types!=45,]
-df2<-df2[df2$soil_types!=46,]
-df2<-df2[df2$soil_types!=51,]
-df2<-df2[df2$soil_types!=53,]
-df2<-df2[df2$soil_types!=54,]
-df2<-df2[df2$soil_types!=55,]
-df2<-df2[df2$soil_types!=60,]
-df2<-df2[df2$soil_types!=63,]
-df2<-df2[df2$soil_types!=64,]
-df2<-df2[df2$soil_types!=66,]
-df2<-df2[df2$soil_types!=69,]
-df2<-df2[df2$soil_types!=70,]
-df2<-df2[df2$soil_types!=71,]
-df2<-df2[df2$soil_types!=72,]
-df2<-df2[df2$soil_types!=74,]
-df2<-df2[df2$soil_types!=75,]
-df2<-df2[df2$soil_types!=80,]
-df2<-df2[df2$soil_types!=81,]
-df2<-df2[df2$soil_types!=82,]
-df2<-df2[df2$soil_types!=84,]
-df2<-df2[df2$soil_types!=94,]
-df2<-df2[df2$soil_types!=99,]
-df2<-df2[df2$soil_types!=100,]
-df2<-df2[df2$soil_types!=103,]
-df2<-df2[df2$soil_types!=104,]
-df2<-df2[df2$soil_types!=105,]
-df2<-df2[df2$soil_types!=106,]
-df2<-df2[df2$soil_types!=109,]
-df2<-df2[df2$soil_types!=112,]
-df2<-df2[df2$soil_types!=117,]
-df2<-df2[df2$soil_types!=118,]
-df2<-df2[df2$soil_types!=125,]
-df2<-df2[df2$soil_types!=127,]
+#remove parent material types that are not shown in training data
+df2<-df2 %>% filter(lc %in% df$lc)
+df2<-df2 %>% filter(pm %in% df$pm)
+df2<-df2 %>% filter(soil_types %in% df$soiltype)
+#remove elevations that are not shown in training data
+df2<-df2[df2$ele<1500, ]
+#remove elevations that are not shown in training data
+df2<-df2[df2$tp>0.000000009512938, ]
 
 #rename the variables
 names(df2)<-c('long','lat','lc','ele','tp','tem','NDVI','pm','soiltype','temf')
 #predict current SOC in Europe
 pred<-predict(rf,newdata=df2)
-
 
 #global shap model
 X<-df[,c('lc','ele','tp','tem','NDVI','pm','soiltype')]
@@ -414,7 +340,7 @@ splite1<-df3[1:1000000,]
 splite2<-df3[1000001:2000000,]
 splite3<-df3[2000001:3000000,]
 splite4<-df3[3000001:4000000,]
-splite5<-df3[4000001:4188083,]
+splite5<-df3[4000001:4119203,]
 df_s<-df[ ,c('lc','ele','tp','tem','NDVI','pm','soiltype')]
 #calculate shap. Here if I use loop, an error occurs and I don't know why
 shap1<-fastshap::explain(rf,
@@ -496,7 +422,7 @@ write_xlsx(df,'D:\\2paper\\working\\res.csv')
 #coordinates, crs
 output<-st_as_sf(shap_all,coords=c('long','lat'),crs=4326)
 #save as shapefile
-st_write(output,'D:\\2paper\\working\\allshap6.shp',append=FALSE)
+st_write(output,'D:\\2paper\\working\\allshap7.shp',append=FALSE)
 
 #barchart of SOC distribution along latitude
 SOC<-raster('D:\\2paper\\processed\\predsoc2018.tif')
