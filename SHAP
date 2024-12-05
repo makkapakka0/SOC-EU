@@ -148,7 +148,7 @@ merge$tp<-merge$tp*3600*24*365*1000
 
 #plot elevation
 ggplot(merge,aes(x=ele,y=eles))+
-  geom_jitter(size=0.8,height=0.4,width=0,alpha=0.2)+
+  geom_jitter(size=0.8,height=0,width=0,alpha=0.2)+
   geom_smooth(method='loess',span=0.1,se=TRUE,color='red',linetype='solid',size=1.5)+
   ylim(-15,40)+
   xlab('Elevation (m)')+
@@ -164,7 +164,7 @@ ggplot(merge,aes(x=ele,y=eles))+
 
 #plot temperature
 ggplot(merge,aes(x=tem,y=tems))+
-  geom_jitter(size=0.8,height=0.4,width=0,alpha=0.2)+
+  geom_jitter(size=0.8,height=0,width=0,alpha=0.2)+
   geom_smooth(method='loess',span=0.1,se=TRUE,color='red',linetype='solid',size=1.5)+
   ylim(-10,80)+
   xlab('Annual mean temperature (℃)')+
@@ -180,7 +180,7 @@ ggplot(merge,aes(x=tem,y=tems))+
 
 #plot precipitation
 ggplot(merge,aes(x=tp,y=tps))+
-  geom_jitter(size=0.8,height=0.4,width=0,alpha=0.2)+
+  geom_jitter(size=0.8,height=0,width=0,alpha=0.2)+
   geom_smooth(method='loess',span=0.1,se=TRUE,color='red',linetype='solid',size=1.5)+
   ylim(-10,80)+
   xlim(0,2000)+
@@ -197,7 +197,7 @@ ggplot(merge,aes(x=tp,y=tps))+
 
 #plot NDVI
 ggplot(merge,aes(x=NDVI,y=NDVIs))+
-  geom_jitter(size=0.8,height=0.4,width=0,alpha=0.2)+
+  geom_jitter(size=0.8,height=0,width=0,alpha=0.2)+
   geom_smooth(method='loess',span=0.1,se=TRUE,color='red',linetype='solid',size=1.5)+
   ylim(-15,60)+
   xlab('NDVI')+
@@ -449,7 +449,7 @@ ggplot(median,aes(x=y,y=median_value))+
 
 #plot LUCAS SOC and latitude
 ggplot(df,aes(x=lat,y=OC))+
-  geom_jitter(size=0.4,height=0.4,width=0,alpha=0.2)+
+  geom_jitter(size=0.4,height=0,width=0,alpha=0.2)+
   geom_smooth(method='loess',span=0.1,se=FALSE,color='red',linetype='solid',size=1.5)+
   ylim(0,600)+
   xlab('')+
