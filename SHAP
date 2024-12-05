@@ -45,12 +45,14 @@ df2<-df2[df2$NDVI!=-9999,]
 df2<-df2[df2$pm!=-9999,]
 df2<-df2[df2$soil_types!=-9999,]
 df2<-df2[df2$temf!=-9999,]
+
 #remove land cover types that are not shown in training data
 #remove soil types that are not shown in training data
 #remove parent material types that are not shown in training data
 df2<-df2 %>% filter(lc %in% df$lc)
 df2<-df2 %>% filter(pm %in% df$pm)
 df2<-df2 %>% filter(soil_types %in% df$soiltype)
+
 #remove elevations above 1500m
 df2<-df2[df2$ele<1500, ]
 #remove annual precipitation below 300mm/y
@@ -331,7 +333,6 @@ shap_df1<-st_as_sf(merge,coords=c('x','y'),crs=4326)
 #save as shapefile
 st_write(shap_df1,'D:\\2paper\\working\\pointshap.shp',append=FALSE)
 
-
 #local shap model for the whole study area
 #select variables
 df3<-df2[ ,c('lc','ele','tp','tem','NDVI','pm','soiltype')]
@@ -397,7 +398,6 @@ shap_all$sum<-rowSums(shap_all)
 #contribution ratio of each variable
 pro<-shap_all[,1:7]/shap_all$sum
 
-
 #add the name of the variable that contributes the most
 shap_all$pro<-colnames(shap_all[,1:7])[apply(pro,1,which.max)]
 
@@ -422,7 +422,7 @@ write_xlsx(df,'D:\\2paper\\working\\res.csv')
 #coordinates, crs
 output<-st_as_sf(shap_all,coords=c('long','lat'),crs=4326)
 #save as shapefile
-st_write(output,'D:\\2paper\\working\\allshap7.shp',append=FALSE)
+st_write(output,'D:\\2paper\\working\\allshap.shp',append=FALSE)
 
 #barchart of SOC distribution along latitude
 SOC<-raster('D:\\2paper\\processed\\predsoc2018.tif')
