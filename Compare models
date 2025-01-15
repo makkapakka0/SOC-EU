@@ -1,0 +1,177 @@
+library(randomForest)
+library(mgcv)
+library(dplyr)
+library(gstat)
+library(sp)
+library(sf)
+library(automap)
+
+df<-read.csv(paste0('D:\\2paper\\working\\all.csv'))
+df<-df[,c('POINT_X','POINT_Y','OC','soil_types','tem','tp','pm','lc_1','ele','NDVI')]
+names(df)<-c('x','y','OC','soiltype','tem','tp','pm','lc','ele','NDVI')
+df<-na.omit(df)
+
+df<-df%>%
+  group_by(lc)%>%
+  mutate(lc_mean=mean(OC))%>%
+  ungroup()%>%
+  mutate(lc=lc_mean)
+
+df<-df%>%
+  group_by(pm)%>%
+  mutate(pm_mean=mean(OC))%>%
+  ungroup()%>%
+  mutate(pm=pm_mean)
+
+df<-df%>%
+  group_by(soiltype)%>%
+  mutate(soiltype_mean=mean(OC))%>%
+  ungroup()%>%
+  mutate(soiltype=soiltype_mean)
+
+
+
+folds<-sample(1:10,size=nrow(df),replace=TRUE)
+
+results_ols<-data.frame(fold=integer(10),performance=numeric(10))
+res_ols<-data.frame()
+
+for (i in 1:10){
+  df_train<-df[folds!=i,]
+  df_test<-df[folds==i,]
+  
+  ols<-lm(OC~ele+tp+tem+NDVI+pm+lc+soiltype,
+          data=df_train)
+  
+  pred<-predict(ols,df_test)
+  
+  se<-as.data.frame(pred-df_test$OC)
+  st<-as.data.frame(df_test$OC-mean(df$OC))
+  
+  rmse<-sqrt(sum((pred-df_test$OC)^2)/nrow(df_test))
+  results_ols$fold[i]<-i
+  results_ols$performance[i]<-rmse
+  
+  merge<-cbind(se,st)
+
+  res_ols<-rbind(res_ols,merge)
+
+}
+
+names(res_ols)<-c('se','st')
+
+mae_ols<-mean(abs(res_ols$se))
+rmse_ols<-mean(results_ols$performance)
+R2_ols<-1-((sum((res_ols$se)^2))/(sum((res_ols$st)^2)))
+
+#RF
+results_rf<-data.frame(fold=integer(10),performance=numeric(10))
+res_rf<-data.frame()
+
+for (i in 1:10){
+  df_train<-df[folds!=i,]
+  df_test<-df[folds==i,]
+  
+  rf<-randomForest(OC~ele+tp+tem+NDVI+pm+lc+soiltype,
+                   ntree=150,
+                   mtry=1,
+                   data=df_train)
+  
+  pred<-predict(rf,df_test)
+  
+  se<-as.data.frame(pred-df_test$OC)
+  st<-as.data.frame(df_test$OC-mean(df$OC))
+  
+  rmse<-sqrt(sum((pred-df_test$OC)^2)/nrow(df_test))
+  results_rf$fold[i]<-i
+  results_rf$performance[i]<-rmse
+  
+  merge<-cbind(se,st)
+  
+  res_rf<-rbind(res_rf,merge)
+  
+}
+
+names(res_rf)<-c('se','st')
+
+mae_rf<-mean(abs(res_rf$se))
+rmse_rf<-mean(results_rf$performance)
+R2_rf<-1-((sum((res_rf$se)^2))/(sum((res_rf$st)^2)))
+
+#GAM
+results_gam<-data.frame(fold=integer(10),performance=numeric(10))
+res_gam<-data.frame()
+
+for (i in 1:10){
+  df_train<-df[folds!=i,]
+  df_test<-df[folds==i,]
+  
+  gam<-gam(OC~s(tem)+s(tp)+s(ele)+s(NDVI)+s(pm)+s(lc)+s(soiltype),
+           data=df_train)
+  
+  pred<-predict(gam,df_test)
+  
+  se<-as.data.frame(pred-df_test$OC)
+  st<-as.data.frame(df_test$OC-mean(df$OC))
+  
+  rmse<-sqrt(sum((pred-df_test$OC)^2)/nrow(df_test))
+  results_gam$fold[i]<-i
+  results_gam$performance[i]<-rmse
+  
+  merge<-cbind(se,st)
+  
+  res_gam<-rbind(res_gam,merge)
+  
+}
+
+names(res_gam)<-c('se','st')
+
+mae_gam<-mean(abs(res_gam$se))
+rmse_gam<-mean(results_gam$performance)
+R2_gam<-1-((sum((res_gam$se)^2))/(sum((res_gam$st)^2)))
+
+
+#RK
+coordinates(df)<-~x+y
+
+results_rk<-data.frame(fold=integer(10),performance=numeric(10))
+res_rk<-data.frame()
+
+for (i in 1:10){
+  df_train<-df[folds!=i,]
+  df_test<-df[folds==i,]
+  
+  lm<-lm(OC~ele+tp+tem+NDVI+pm+lc+soiltype,
+         data=df_train@data)
+  
+  df_train@data$residuals<-residuals(lm)
+  
+  vario<-autofitVariogram(residuals~1,df_train)
+  kriging<-krige(residuals~1,
+                 locations = df_train,
+                 newdata=df_test,
+                 model=vario$var_model)
+
+  pred<-predict(lm,df_test)+kriging$var1.pred
+
+  
+  se<-as.data.frame(pred-df_test$OC)
+  st<-as.data.frame(df_test$OC-mean(df$OC))
+  
+  rmse<-sqrt(sum((pred-df_test$OC)^2)/nrow(df_test))
+  results_rk$fold[i]<-i
+  results_rk$performance[i]<-rmse
+  
+  merge<-cbind(se,st)
+  
+  res_rk<-rbind(res_rk,merge)
+  
+}
+
+names(res_rk)<-c('se','st')
+
+mae_rk<-mean(abs(res_rk$se))
+rmse_rk<-mean(results_rk$performance)
+R2_rk<-1-((sum((res_rk$se)^2))/(sum((res_rk$st)^2)))
+
+
