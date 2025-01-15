@@ -45,14 +45,12 @@ df2<-df2[df2$NDVI!=-9999,]
 df2<-df2[df2$pm!=-9999,]
 df2<-df2[df2$soil_types!=-9999,]
 df2<-df2[df2$temf!=-9999,]
-
 #remove land cover types that are not shown in training data
 #remove soil types that are not shown in training data
 #remove parent material types that are not shown in training data
 df2<-df2 %>% filter(lc %in% df$lc)
 df2<-df2 %>% filter(pm %in% df$pm)
 df2<-df2 %>% filter(soil_types %in% df$soiltype)
-
 #remove elevations above 1500m
 df2<-df2[df2$ele<1500, ]
 #remove annual precipitation below 300mm/y
@@ -322,7 +320,6 @@ ggplot(stdata,aes(x=soiltype,y=soiltypes,group=soiltype))+
         axis.line = element_line(colour = 'black'))+
   ggsave('D:\\2paper\\maps\\stshap.tiff',dpi=300,width=10,height=6)
 
-
 #to GIS
 #residual
 merge$res<-rf[["predicted"]]-df$OC
@@ -396,11 +393,9 @@ shap_all<-na.omit(shap_all)
 #calculate the sum of the shap values
 shap_all$sum<-rowSums(shap_all)
 #contribution ratio of each variable
-pro<-shap_all[,1:7]/shap_all$sum
-
+dom<-shap_all[,1:7]/shap_all$sum
 #add the name of the variable that contributes the most
-shap_all$pro<-colnames(shap_all[,1:7])[apply(pro,1,which.max)]
-
+shap_all$dom<-colnames(shap_all[,1:7])[apply(dom,1,which.max)]
 #predict SOC in the next 60 years
 #get the variables
 df5<-df2[ ,c('lc','ele','tp','temf','NDVI','pm','soiltype')]
@@ -422,7 +417,7 @@ write_xlsx(df,'D:\\2paper\\working\\res.csv')
 #coordinates, crs
 output<-st_as_sf(shap_all,coords=c('long','lat'),crs=4326)
 #save as shapefile
-st_write(output,'D:\\2paper\\working\\allshap.shp',append=FALSE)
+st_write(output,'D:\\2paper\\working\\allshap7.shp',append=FALSE)
 
 #barchart of SOC distribution along latitude
 SOC<-raster('D:\\2paper\\processed\\predsoc2018.tif')
