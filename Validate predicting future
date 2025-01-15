@@ -1,0 +1,178 @@
+library(ncdf4)
+library(raster)
+library(rgdal)
+library(ggplot2)
+library(randomForest)
+library(fastshap)
+
+nc_data<-nc_open('D:\\2paper\\working\\era5.nc')
+
+lon<-ncvar_get(nc_data,nc_data[["dim"]][["longitude"]])
+lat<-ncvar_get(nc_data,nc_data[["dim"]][["latitude"]])
+t<-ncvar_get(nc_data,nc_data[["dim"]][["time"]])
+tem<-ncvar_get(nc_data,nc_data[["var"]][["t2m"]])
+tp<-ncvar_get(nc_data,nc_data[["var"]][["tp"]])
+
+#time coverage of 1999-2009
+tem<-tem[ , ,1:120]
+tp<-tp[ , ,1:120]
+
+tem<-apply(tem,2:1,mean,drop=FALSE)
+tp<-apply(tp,2:1,mean,drop=FALSE)
+
+print(lon)
+print(lat)
+extent<-extent(c(-15,35,30,75))
+
+raster_data<-raster(tem,xmn=extent[1],xmx=extent[2],ymn=extent[3],ymx=extent[4])
+crs(raster_data) <- '+proj=longlat +datum=WGS84'
+writeRaster(raster_data,filename='D:\\2paper\\working\\temv1.tif',format='GTiff',
+            options=c('TFW=YES'),overwrite = TRUE)
+
+raster_data<-raster(tp,xmn=extent[1],xmx=extent[2],ymn=extent[3],ymx=extent[4])
+crs(raster_data) <- '+proj=longlat +datum=WGS84'
+writeRaster(raster_data,filename='D:\\2paper\\working\\tpv1.tif',format='GTiff',
+            options=c('TFW=YES'),overwrite = TRUE)
+
+
+tem<-ncvar_get(nc_data,nc_data[["var"]][["t2m"]])
+tp<-ncvar_get(nc_data,nc_data[["var"]][["tp"]])
+
+#time coverage of 2009-2018
+tem<-tem[ , ,121:240]
+tp<-tp[ , ,121:240]
+
+tem<-apply(tem,2:1,mean,drop=FALSE)
+tp<-apply(tp,2:1,mean,drop=FALSE)
+
+raster_data<-raster(tem,xmn=extent[1],xmx=extent[2],ymn=extent[3],ymx=extent[4])
+crs(raster_data) <- '+proj=longlat +datum=WGS84'
+writeRaster(raster_data,filename='D:\\2paper\\working\\temv2.tif',format='GTiff',
+            options=c('TFW=YES'),overwrite = TRUE)
+
+raster_data<-raster(tp,xmn=extent[1],xmx=extent[2],ymn=extent[3],ymx=extent[4])
+crs(raster_data) <- '+proj=longlat +datum=WGS84'
+writeRaster(raster_data,filename='D:\\2paper\\working\\tpv2.tif',format='GTiff',
+            options=c('TFW=YES'),overwrite = TRUE)
+
+#train model 2009
+df<-read.csv(paste0('D:\\2paper\\working\\validation.csv'))
+df<-na.omit(df)
+train<-df[,c('OC09','ele','tpv09','tem09','NDVI09','pm','lc09','soiltypes')]
+names(train)<-c('OC','ele','tp','tem','NDVI','pm','lc','soiltype')
+
+rf<-randomForest(OC~ele+tp+tem+NDVI+pm+lc+soiltype,
+                 ntree=150,
+                 mtry=1,
+                 data=train)
+
+df_shap<-train[ ,c('ele','tp','tem','NDVI','pm','lc','soiltype')]
+shap<-fastshap::explain(rf,
+                        X = df_shap,
+                        nsim = 100,
+                        baseline = 0,
+                        adjust = TRUE,
+                        pred_wrapper = function(model,newdata){
+                          predict(model,newdata)
+                        },
+                        newdata = df_shap)
+shap<-as.data.frame(shap)
+df_shap$tem<-df_shap$tem-273.15
+df_shap$tp<-df_shap$tp*1000*60*60*24*365
+merge<-cbind(df_shap,shap)
+names(merge)<-c('ele','tp','tem','NDVI','pm','lc','soiltype',
+                'eles','tps','tems','NDVIs','pms','lcs','soiltypes')
+ggplot(merge,aes(x=tem,y=tems))+
+  geom_jitter(size=0.8,height=0,width=0,alpha=0.2)+
+  geom_smooth(method='loess',span=0.1,se=TRUE,color='red',linetype='solid',size=1.5)+
+  ylim(-10,80)+
+  xlab('Annual mean temperature (℃)')+
+  ylab('SHAP value (g/kg)')+
+  theme_minimal()+
+  theme(axis.text = element_text(size=24),
+        axis.title = element_text(size=28),
+        panel.border = element_rect(colour = 'black',fill=NA,size=2),
+        panel.grid.major = element_line(colour = 'gray80'),
+        panel.grid.minor = element_line(colour = 'gray80'),
+        axis.line = element_line(colour = 'black'))+
+  ggsave('D:\\2paper\\maps\\temshap09.tiff',dpi=300,width=10,height=6)
+
+
+rmse1<-sqrt(sum((rf[["predicted"]]-train[['OC']])^2)/nrow(train))
+
+#train model 2009 + predict 2018 using all variable in 2018
+test<-df[,c('OC18','ele','tpv18','tem18','NDVI18','pm','lc18','soiltypes')]
+names(test)<-c('OC','ele','tp','tem','NDVI','pm','lc','soiltype')
+
+pred<-predict(rf,test)
+rmse2<-sqrt(sum((pred-test[['OC']])^2)/nrow(test))
+
+#train model 2018
+rf2<-randomForest(OC~ele+tp+tem+NDVI+pm+lc+soiltype,
+                 ntree=150,
+                 mtry=1,
+                 data=test)
+
+df_shap2<-test[ ,c('ele','tp','tem','NDVI','pm','lc','soiltype')]
+shap2<-fastshap::explain(rf,
+                        X = df_shap2,
+                        nsim = 100,
+                        baseline = 0,
+                        adjust = TRUE,
+                        pred_wrapper = function(model,newdata){
+                          predict(model,newdata)
+                        },
+                        newdata = df_shap2)
+shap2<-as.data.frame(shap2)
+df_shap2$tem<-df_shap2$tem-273.15
+df_shap2$tp<-df_shap2$tp*1000*60*60*24*365
+merge2<-cbind(df_shap2,shap2)
+names(merge2)<-c('ele','tp','tem','NDVI','pm','lc','soiltype',
+                 'eles','tps','tems','NDVIs','pms','lcs','soiltypes')
+ggplot(merge2,aes(x=tem,y=tems))+
+  geom_jitter(size=0.8,height=0,width=0,alpha=0.2)+
+  geom_smooth(method='loess',span=0.1,se=TRUE,color='red',linetype='solid',size=1.5)+
+  ylim(-10,80)+
+  xlab('Annual mean temperature (℃)')+
+  ylab('SHAP value (g/kg)')+
+  theme_minimal()+
+  theme(axis.text = element_text(size=24),
+        axis.title = element_text(size=28),
+        panel.border = element_rect(colour = 'black',fill=NA,size=2),
+        panel.grid.major = element_line(colour = 'gray80'),
+        panel.grid.minor = element_line(colour = 'gray80'),
+        axis.line = element_line(colour = 'black'))+
+  ggsave('D:\\2paper\\maps\\temshap18.tiff',dpi=300,width=10,height=6)
+
+
+rmse4<-sqrt(sum((rf2[["predicted"]]-test[['OC']])^2)/nrow(test))
+
+#train model 2009 + predict 2018 using only temperature in 2018
+temc<-df[,c('ele','tpv09','tem18','NDVI09','pm','lc09','soiltypes')]
+names(temc)<-c('ele','tp','tem','NDVI','pm','lc','soiltype')
+predtemc<-predict(rf,temc)
+rmse3<-sqrt(sum((predtemc-test$OC)^2)/nrow(test))
+R2<-1-sum((predtemc-test$OC)^2/sum((test$OC-mean(test$OC))^2))
+
+
+#density scatter plot
+test$pred<-predtemc
+ggplot(test,aes(x=OC,y=pred))+
+  geom_hex(bins=100)+
+  scale_fill_gradientn(
+    colors = c('#4B0082','blue','green','yellow','orange','red'),
+    values = scales::rescale(c(0,0.01,0.05,0.2,0.4,1)),
+    name='Density'
+  )+
+  geom_abline(slope = 1,intercept = 0,linetype='dashed',color='red')+
+  xlim(0,600)+
+  ylim(0,300)+
+  xlab('Observed SOC in 2018 (g/kg)')+
+  ylab('Predicted SOC in 2018 (g/kg)')+
+  theme(axis.text = element_text(size=24),
+        axis.title = element_text(size=28),
+        panel.border = element_rect(colour = 'black',fill=NA,size=2),
+        panel.grid.major = element_line(colour = 'gray80'),
+        panel.grid.minor = element_line(colour = 'gray80'),
+        axis.line = element_line(colour = 'black'))+
+  ggsave('D:\\2paper\\maps\\density.tiff',dpi=300,width=10,height=6)
