@@ -12,7 +12,7 @@ library(gplots)
 library(sf)
 
 #read data
-df<-read.csv(paste0('D:\\2paper\\working\\all.csv'))
+df<-read.csv('D:\\2paper\\working\\all.csv')
 #select variables
 df<-df[,c('POINT_X','POINT_Y','OC','ele','tp','tem','NDVI','pm','lc_1','soil_types')]
 names(df)<-c('long','lat','OC','ele','tp','tem','NDVI','pm','lc','soiltype')
@@ -33,7 +33,7 @@ rf<-randomForest(OC~ele+tp+tem+NDVI+pm+lc+soiltype,
 df1<-df[ ,c('lc','ele','tp','tem','NDVI','pm','soiltype')]
 
 #read map for prediction
-map<-shapefile(paste0('D:\\2paper\\working\\fishnetclip.shp'))
+map<-shapefile('D:\\2paper\\working\\fishnetclip.shp')
 #select variables
 df2<-map@data[ ,c('POINT_X','POINT_Y','lc','ele','tp','tem','NDVI','pm','soil_types','temf')]
 #remove -9999
@@ -146,6 +146,9 @@ merge$tem<-merge$tem-273.15
 #convert m/s to mm/y
 merge$tp<-merge$tp*3600*24*365*1000
 
+text_size<-26
+title_size<-36
+
 #plot elevation
 ggplot(merge,aes(x=ele,y=eles))+
   geom_point(size=0.8,alpha=0.2)+
@@ -154,29 +157,33 @@ ggplot(merge,aes(x=ele,y=eles))+
   xlab('Elevation (m)')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=24),
-        axis.title = element_text(size=28),
+  theme(axis.text = element_text(size=text_size,colour = 'black'),
+        axis.title = element_text(size=title_size),
         panel.border = element_rect(colour = 'black',fill=NA,size=2),
-        panel.grid.major = element_line(colour = 'gray80'),
-        panel.grid.minor = element_line(colour = 'gray80'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks = element_line(),
+        axis.ticks.length = unit(-0.25,'cm'),
         axis.line = element_line(colour = 'black'))+
   ggsave('D:\\2paper\\maps\\eleshap.tiff',dpi=300,width=10,height=6)
 
 #plot temperature
 ggplot(merge,aes(x=tem,y=tems))+
-  geom_point(size=0.8,alpha=0.2)+
-  geom_smooth(method='loess',span=0.1,se=TRUE,color='red',linetype='solid',size=1.5)+
+  geom_point(size=2,alpha=0.2)+
+  geom_smooth(method='loess',span=0.1,se=TRUE,color='red',linetype='solid',size=3)+
   ylim(-10,80)+
   xlab('Annual mean temperature (℃)')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=24),
-        axis.title = element_text(size=28),
-        panel.border = element_rect(colour = 'black',fill=NA,size=2),
-        panel.grid.major = element_line(colour = 'gray80'),
-        panel.grid.minor = element_line(colour = 'gray80'),
+  theme(axis.text = element_text(size=30,colour = 'black'),
+        axis.title = element_text(size=40),
+        panel.border = element_rect(colour = 'black',fill=NA,size=4),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks = element_line(),
+        axis.ticks.length = unit(-0.5,'cm'),
         axis.line = element_line(colour = 'black'))+
-  ggsave('D:\\2paper\\maps\\temshap.tiff',dpi=300,width=10,height=6)
+  ggsave('D:\\2paper\\maps\\temshap.tiff',dpi=300,width=20,height=12)
 
 #plot precipitation
 ggplot(merge,aes(x=tp,y=tps))+
@@ -187,11 +194,13 @@ ggplot(merge,aes(x=tp,y=tps))+
   xlab('Annual precipitation (mm/y)')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=24),
-        axis.title = element_text(size=28),
+  theme(axis.text = element_text(size=text_size,colour = 'black'),
+        axis.title = element_text(size=title_size),
         panel.border = element_rect(colour = 'black',fill=NA,size=2),
-        panel.grid.major = element_line(colour = 'gray80'),
-        panel.grid.minor = element_line(colour = 'gray80'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks = element_line(),
+        axis.ticks.length = unit(-0.25,'cm'),
         axis.line = element_line(colour = 'black'))+
   ggsave('D:\\2paper\\maps\\tpshap.tiff',dpi=300,width=10,height=6)
 
@@ -203,11 +212,13 @@ ggplot(merge,aes(x=NDVI,y=NDVIs))+
   xlab('NDVI')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=24),
-        axis.title = element_text(size=28),
+  theme(axis.text = element_text(size=text_size,colour = 'black'),
+        axis.title = element_text(size=title_size),
         panel.border = element_rect(colour = 'black',fill=NA,size=2),
-        panel.grid.major = element_line(colour = 'gray80'),
-        panel.grid.minor = element_line(colour = 'gray80'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks = element_line(),
+        axis.ticks.length = unit(-0.25,'cm'),
         axis.line = element_line(colour = 'black'))+
   ggsave('D:\\2paper\\maps\\NDVIshap.tiff',dpi=300,width=10,height=6)
 
@@ -239,11 +250,13 @@ ggplot(pmdata,aes(x=pm,y=pms,group=pm))+
   xlab('Parent material')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=24),
-        axis.title = element_text(size=28),
+  theme(axis.text = element_text(size=text_size,colour = 'black'),
+        axis.title = element_text(size=title_size),
         panel.border = element_rect(colour = 'black',fill=NA,size=2),
-        panel.grid.major = element_line(colour = 'gray80'),
-        panel.grid.minor = element_line(colour = 'gray80'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks = element_line(),
+        axis.ticks.length = unit(-0.25,'cm'),
         axis.line = element_line(colour = 'black'))+
   ggsave('D:\\2paper\\maps\\pmshap.tiff',dpi=300,width=10,height=6)
 
@@ -257,7 +270,8 @@ smd<-summarise(gd,mean_value=mean(lcs))
 #get the top 5
 lcdata<-merge[merge$lc %in% c(36,24,29,35,32),]
 #change the id into real name
-lcdata$lc[lcdata$lc==36]<-c('Peat bogs')
+lcdata$lc[lcdata$lc==36]<-c('Peat 
+bogs')
 lcdata$lc[lcdata$lc==24]<-c('Coniferous
 forest')
 lcdata$lc[lcdata$lc==29]<-c('Transitional
@@ -276,11 +290,13 @@ ggplot(lcdata,aes(x=lc,y=lcs,group=lc))+
   xlab('Land cover')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=24),
-        axis.title = element_text(size=28),
+  theme(axis.text = element_text(size=text_size,colour = 'black'),
+        axis.title = element_text(size=title_size),
         panel.border = element_rect(colour = 'black',fill=NA,size=2),
-        panel.grid.major = element_line(colour = 'gray80'),
-        panel.grid.minor = element_line(colour = 'gray80'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks = element_line(),
+        axis.ticks.length = unit(-0.25,'cm'),
         axis.line = element_line(colour = 'black'))+
   ggsave('D:\\2paper\\maps\\lcvshap.tiff',dpi=300,width=10,height=6)
 
@@ -312,11 +328,13 @@ ggplot(stdata,aes(x=soiltype,y=soiltypes,group=soiltype))+
   xlab('Soil type')+
   ylab('SHAP value (g/kg)')+
   theme_minimal()+
-  theme(axis.text = element_text(size=24),
-        axis.title = element_text(size=28),
+  theme(axis.text = element_text(size=text_size,colour = 'black'),
+        axis.title = element_text(size=title_size),
         panel.border = element_rect(colour = 'black',fill=NA,size=2),
-        panel.grid.major = element_line(colour = 'gray80'),
-        panel.grid.minor = element_line(colour = 'gray80'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks = element_line(),
+        axis.ticks.length = unit(-0.25,'cm'),
         axis.line = element_line(colour = 'black'))+
   ggsave('D:\\2paper\\maps\\stshap.tiff',dpi=300,width=10,height=6)
 
@@ -444,7 +462,7 @@ ggplot(median,aes(x=y,y=median_value))+
 
 #plot LUCAS SOC and latitude
 ggplot(df,aes(x=lat,y=OC))+
-  geom_point(size=0.8,alpha=0.2)+
+  geom_jitter(size=0.4,height=0,width=0,alpha=0.2)+
   geom_smooth(method='loess',span=0.1,se=FALSE,color='red',linetype='solid',size=1.5)+
   ylim(0,600)+
   xlab('')+
